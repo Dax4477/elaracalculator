@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grain Selling Profit Calculator</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 30px auto;
+    max-width: 480px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    padding: 25px;
+    border-radius: 8px;
+  }
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+  }
+  label {
+    display: block;
+    margin-top: 20px;
+    font-weight: 600;
+    color: #34495e;
+  }
+  input[type="number"] {
+    width: 100%;
+    padding: 10px 8px;
+    margin-top: 6px;
+    font-size: 1rem;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 25px;
+    width: 100%;
+    background-color: #27ae60;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 700;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #219150;
+  }
+  .result {
+    margin-top: 25px;
+    padding: 20px;
+    background-color: #ecf0f1;
+    border-radius: 8px;
+    line-height: 1.5;
+    font-size: 1.1rem;
+    color: #2c3e50;
+  }
+  .error {
+    margin-top: 10px;
+    color: #c0392b;
+    font-weight: 600;
+  }
+  .note {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+  }
+</style>
+</head>
+<body>
+
+<h1>Grain Selling Profit Calculator</h1>
+
+<label for="cost">Total Cost Price (₹):</label>
+<input type="number" id="cost" placeholder="Example: 12500" min="0" step="0.01" />
+
+<label for="weight">Total Weight (grams):</label>
+<input type="number" id="weight" placeholder="Example: 5000 for 5 kg" min="0" step="0.01" />
+
+<label for="unitSize">Unit Size (grams):</label>
+<input type="number" id="unitSize" placeholder="Example: 1" min="0" step="0.01" />
+
+<label for="unitPrice">Selling Price per Unit (₹):</label>
+<input type="number" id="unitPrice" placeholder="Example: 4" min="0" step="0.01" />
+
+<button onclick="calculateProfit()">Calculate Profit</button>
+
+<div id="errorMsg" class="error"></div>
+<div id="result" class="result" style="display:none;"></div>
+
+<div class="note">
+  Enter the total cost and total weight of your grains.<br/>
+  Define the unit size you want to sell (e.g., 1 gram, 5 grams).<br/>
+  Enter the selling price per unit to see detailed profit analysis.
+</div>
+
+<script>
+function calculateProfit() {
+  const cost = parseFloat(document.getElementById('cost').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const unitSize = parseFloat(document.getElementById('unitSize').value);
+  const unitPrice = parseFloat(document.getElementById('unitPrice').value);
+
+  const errorMsg = document.getElementById('errorMsg');
+  const resultDiv = document.getElementById('result');
+  errorMsg.innerHTML = '';
+  resultDiv.style.display = 'none';
+  resultDiv.innerHTML = '';
+
+  // Validate inputs
+  if (isNaN(cost) || cost <= 0) {
+    errorMsg.innerHTML = 'Please enter a valid Total Cost Price greater than 0.';
+    return;
+  }
+  if (isNaN(weight) || weight <= 0) {
+    errorMsg.innerHTML = 'Please enter a valid Total Weight (grams) greater than 0.';
+    return;
+  }
+  if (isNaN(unitSize) || unitSize <= 0 || unitSize > weight) {
+    errorMsg.innerHTML = 'Please enter a valid Unit Size greater than 0 and less than or equal to Total Weight.';
+    return;
+  }
+  if (isNaN(unitPrice) || unitPrice <= 0) {
+    errorMsg.innerHTML = 'Please enter a valid Selling Price per Unit greater than 0.';
+    return;
+  }
+
+  // Calculate units count
+  const units = weight / unitSize;
+
+  // Calculate cost per unit
+  const costPerUnit = cost / units;
+
+  // Calculate profit per unit
+  const profitPerUnit = unitPrice - costPerUnit;
+
+  // Calculate total profit and total revenue
+  const totalProfit = profitPerUnit * units;
+  const totalRevenue = cost + totalProfit;
+
+  // Calculate profit percentage
+  const profitPercent = (totalProfit / cost) * 100;
+
+  // Build result output
+  let output = `<strong>Calculated Results:</strong><br/><br/>`;
+  output += `Total Units (Quantity): <strong>${units.toFixed(0)}</strong><br/>`;
+  output += `Cost Price per Unit: <strong>₹${costPerUnit.toFixed(2)}</strong><br/>`;
+  output += `Selling Price per Unit: <strong>₹${unitPrice.toFixed(2)}</strong><br/>`;
+  output += `Profit per Unit: <strong>₹${profitPerUnit.toFixed(2)}</strong><br/><br/>`;
+  output += `Total Cost Price: <strong>₹${cost.toFixed(2)}</strong><br/>`;
+  output += `Total Revenue (Cost + Profit): <strong>₹${totalRevenue.toFixed(2)}</strong><br/>`;
+  output += `Total Profit: <strong>₹${totalProfit.toFixed(2)}</strong><br/>`;
+  output += `Profit Percentage: <strong>${profitPercent.toFixed(2)}%</strong>`;
+
+  resultDiv.innerHTML = output;
+  resultDiv.style.display = 'block';
+}
+</script>
+
+</body>
+</html>
