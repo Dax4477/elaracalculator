@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grain Selling Profit Calculator</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 30px auto;
+    max-width: 480px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    padding: 25px;
+    border-radius: 8px;
+  }
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+  }
+  label {
+    display: block;
+    margin-top: 20px;
+    font-weight: 600;
+    color: #34495e;
+  }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 10px 8px;
+    margin-top: 6px;
+    font-size: 1rem;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 25px;
+    width: 100%;
+    background-color: #27ae60;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 700;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #219150;
+  }
+  #printBtn {
+    background-color: #3498db;
+    margin-top: 15px;
+  }
+  #printBtn:hover {
+    background-color: #2980b9;
+  }
+  .result {
+    margin-top: 25px;
+    padding: 20px;
+    background-color: #ecf0f1;
+    border-radius: 8px;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    color: #2c3e50;
+  }
+  .result h3 {
+    margin-bottom: 10px;
+    color: #2980b9;
+    border-bottom: 1px solid #bdc3c7;
+    padding-bottom: 5px;
+  }
+  .error {
+    margin-top: 10px;
+    color: #c0392b;
+    font-weight: 600;
+  }
+  .note {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+  }
+
+  /* Print Styles - Hides everything except the result block */
+  @media print {
+    body {
+      background: none;
+      border: none;
+      margin: 0;
+      padding: 0;
+      max-width: 100%;
+    }
+    /* Hide all elements that are not the result container */
+    body > *:not(#result) {
+      display: none !important;
+    }
+    /* Format the result container specifically for the printed page */
+    #result {
+      display: block !important;
+      background-color: transparent;
+      border: none;
+      margin-top: 0;
+      padding: 0;
+      color: #000;
+    }
+    .result h3 {
+      color: #000;
+      border-bottom: 1px solid #000;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Grain Selling Profit Calculator</h1>
+
+<label for="sellerName">Seller / Business Name:</label>
+<input type="text" id="sellerName" placeholder="Example: John Doe" />
+
+<label for="cost">Total Cost Price (₹):</label>
+<input type="number" id="cost" placeholder="Example: 12500" min="0" step="0.01" />
+
+<label for="weight">Total Weight (grams):</label>
+<input type="number" id="weight" placeholder="Example: 5000 for 5 kg" min="0" step="0.01" />
+
+<label for="unitSize">Unit Size (grams):</label>
+<input type="number" id="unitSize" placeholder="Example: 1" min="0" step="0.01" />
+
+<label for="unitPrice">Selling Price per Unit (₹):</label>
+<input type="number" id="unitPrice" placeholder="Example: 4" min="0" step="0.01" />
+
+<button onclick="calculateProfit()">Calculate Profit</button>
+<button id="printBtn" onclick="window.print()" style="display:none;">Print Complete Details</button>
+
+<div id="errorMsg" class="error"></div>
+<div id="result" class="result" style="display:none;"></div>
+
+<div class="note">
+  Enter your name, total cost, and total weight of your grains.<br/>
+  Define the unit size you want to sell (e.g., 1 gram, 5 grams).<br/>
+  Enter the selling price per unit to see detailed profit analysis.
+</div>
+
+<script>
+function calculateProfit() {
+  const sellerName = document.getElementById('sellerName').value.trim();
+  const cost = parseFloat(document.getElementById('cost').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const unitSize = parseFloat(document.getElementById('unitSize').value);
+  const unitPrice = parseFloat(document.getElementById('unitPrice').value);
+
+  const errorMsg = document.getElementById('errorMsg');
+  const resultDiv = document.getElementById('result');
+  const printBtn = document.getElementById('printBtn');
+  
+  errorMsg.innerHTML = '';
+  resultDiv.style.display = 'none';
+  resultDiv.innerHTML = '';
+  printBtn.style.display = 'none';
+
+  // Validate inputs
+  if (isNaN(cost) || cost <= 0) {
+    errorMsg.innerHTML = 'Please enter a valid Total Cost Price greater than 0.';
+    return;
+  }
+  if (isNaN(weight) || weight <= 0) {
+    errorMsg.innerHTML = 'Please enter a valid Total Weight (grams) greater than 0.';
+    return;
+  }
+  if (isNaN(unitSize) || unitSize <= 0 || unitSize > weight) {
+    errorMsg.innerHTML = 'Please enter a valid Unit Size greater than 0 and less than or equal to Total Weight.';
+    return;
+  }
+  if (isNaN(unitPrice) || unitPrice <= 0) {
+    errorMsg.innerHTML = 'Please enter a valid Selling Price per Unit greater than 0.';
+    return;
+  }
+
+  // Calculate variables
+  const units = weight / unitSize;
+  const costPerUnit = cost / units;
+  const profitPerUnit = unitPrice - costPerUnit;
+  const totalProfit = profitPerUnit * units;
+  const totalRevenue = cost + totalProfit;
+  const profitPercent = (totalProfit / cost) * 100;
+
+  // Generate Timestamp
+  const now = new Date();
+  const dateString = now.toLocaleDateString();
+  const timeString = now.toLocaleTimeString();
+
+  // Build the complete result output
+  let output = `<div style="text-align: center; margin-bottom: 20px;">`;
+  output += `<h2 style="margin-bottom: 5px; color: #2c3e50;">Profit Calculation Report</h2>`;
+  output += `<span style="font-size: 0.9rem; color: #7f8c8d;">Generated on: ${dateString} at ${timeString}</span>`;
+  output += `</div>`;
+
+  if (sellerName) {
+    output += `Seller / Business Name: <strong>${sellerName}</strong><br/><br/>`;
+  }
+
+  // Section 1: Record of the inputs provided
+  output += `<h3>Input Parameters</h3>`;
+  output += `Total Weight: <strong>${weight} grams</strong><br/>`;
+  output += `Total Cost Price: <strong>₹${cost.toFixed(2)}</strong><br/>`;
+  output += `Unit Size: <strong>${unitSize} grams</strong><br/>`;
+  output += `Selling Price per Unit: <strong>₹${unitPrice.toFixed(2)}</strong><br/><br/>`;
+
+  // Section 2: Calculated results
+  output += `<h3>Calculated Results</h3>`;
+  output += `Total Units Available: <strong>${units.toFixed(0)}</strong><br/>`;
+  output += `Cost Price per Unit: <strong>₹${costPerUnit.toFixed(2)}</strong><br/>`;
+  output += `Profit per Unit: <strong>₹${profitPerUnit.toFixed(2)}</strong><br/><br/>`;
+  output += `Total Revenue (Cost + Profit): <strong>₹${totalRevenue.toFixed(2)}</strong><br/>`;
+  output += `Total Profit: <strong>₹${totalProfit.toFixed(2)}</strong><br/>`;
+  output += `Profit Percentage: <strong>${profitPercent.toFixed(2)}%</strong>`;
+
+  resultDiv.innerHTML = output;
+  resultDiv.style.display = 'block';
+  printBtn.style.display = 'block';
+}
+</script>
+
+</body>
+</html>
